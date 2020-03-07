@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 app/google-services.json
+app/src/main/java/com/codersofblvkn/criminaltagging/ServerKey.java
+ServerKey.java
