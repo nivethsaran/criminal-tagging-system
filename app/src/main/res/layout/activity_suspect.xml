@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".SuspectActivity">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+        <Button
+            android:layout_width="match_parent"
+            android:id="@+id/button_capture"
+            android:text="CLICK PICTURE"
+            android:layout_weight="1"
+            android:layout_height="wrap_content">
+
+        </Button>
+        <Button
+            android:layout_width="match_parent"
+            android:id="@+id/button_choose"
+            android:text="GALLERY"
+            android:layout_weight="1"
+            android:layout_height="wrap_content">
+
+        </Button>
+    </LinearLayout>
+
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:src="@color/colorPrimaryDark"
+        android:id="@+id/criminal_image_iv"
+        />
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/upload_suspect"
+        android:text="Upload"/>
+</LinearLayout>
