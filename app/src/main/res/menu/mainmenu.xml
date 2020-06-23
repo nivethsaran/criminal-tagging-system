@@ -7,9 +7,9 @@
     <item
         android:id="@+id/navigation_me"
         android:icon="@drawable/ic_menu_gallery"
-        android:title="Manual Entry" />
+        android:title="Profile" />
     <item
         android:id="@+id/navigation_about"
         android:icon="@drawable/ic_menu_camera"
-        android:title="About" />
+        android:title="Maps" />
 </menu>

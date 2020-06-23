@@ -61,7 +61,7 @@ ProgressBar progressBar;
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            Intent intent=new Intent(LaunchActivity.this, MainActivity.class);
+            Intent intent=new Intent(LaunchActivity.this, LoginActivity.class);
             startActivity(intent);
         }
     }

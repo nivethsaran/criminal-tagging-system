@@ -9,9 +9,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.codersofblvkn.criminaltagging.Fragments.AboutFragment;
 import com.codersofblvkn.criminaltagging.Fragments.DetectFragment;
 import com.codersofblvkn.criminaltagging.Fragments.ManualEntryFragment;
+import com.codersofblvkn.criminaltagging.Fragments.MapsFragment;
 import com.codersofblvkn.criminaltagging.R;
 import com.codersofblvkn.criminaltagging.Utils.ServerKey;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
                                 openFragment(ManualEntryFragment.newInstance("", ""));
                                 return true;
                             case R.id.navigation_about:
-                                openFragment(AboutFragment.newInstance());
+                                openFragment(MapsFragment.newInstance());
                                 return true;
                         }
                         return false;
