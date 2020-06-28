@@ -123,7 +123,7 @@ public class LoginActivity extends AppCompatActivity {
                                     if (task.isSuccessful()) {
                                         currentUser = mAuth.getCurrentUser();
                                                     final Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                                                        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
                                                             Executor executor = Executors.newSingleThreadExecutor();
                                                             biometricPrompt = new BiometricPrompt(LoginActivity.this, executor, new BiometricPrompt.AuthenticationCallback() {
                                                                 @Override
@@ -150,7 +150,12 @@ public class LoginActivity extends AppCompatActivity {
                                                                     .build();
                                                             biometricPrompt.authenticate(promptInfo);
 
-                                    } }else {
+                                    }
+                                                        else
+                                                        {
+                                                            startActivity(i);
+                                                        }
+                                    }else {
                                         if (dialog.isShowing()) {
                                             dialog.dismiss();
                                         }

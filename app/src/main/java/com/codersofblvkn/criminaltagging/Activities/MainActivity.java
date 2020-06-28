@@ -25,7 +25,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
 
     BottomNavigationView bottomNavigation;
     private static final String TAG = "ALERT";
@@ -88,6 +88,8 @@ public class MainActivity extends AppCompatActivity {
         transaction.addToBackStack(null);
         transaction.commit();
     }
+
+
 
     class FCMTask extends AsyncTask<Void, Void, Void> {
 

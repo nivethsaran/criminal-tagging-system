@@ -16,6 +16,10 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+
 public class LaunchActivity extends AppCompatActivity {
 ProgressBar progressBar;
     private static final String TAG = "ALERT";
@@ -23,7 +27,21 @@ ProgressBar progressBar;
     protected void onStart() {
         super.onStart();
 
-        new LaunchTask().execute();
+        Observable.fromCallable(() -> {
+
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return 0;
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe((result) -> {
+                    Intent intent=new Intent(LaunchActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                });
     }
 
     @Override
@@ -43,7 +61,14 @@ ProgressBar progressBar;
                 Toast.makeText(LaunchActivity.this, msg, Toast.LENGTH_SHORT).show();
             }
         });
+
+
+
     }
+
+
+
+
 
     class LaunchTask extends AsyncTask<Void,Void,Void>
     {
