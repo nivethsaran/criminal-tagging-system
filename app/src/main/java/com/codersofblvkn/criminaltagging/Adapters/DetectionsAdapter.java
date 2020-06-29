@@ -60,13 +60,14 @@ public class DetectionsAdapter extends RecyclerView.Adapter<DetectionsAdapter.De
         }
 
         public void bind(Detection detection) {
+
+            String disp_ID=Integer.toString(detection.getId());
+            tv1.setText("Criminal ID:"+disp_ID);
+//            tv2.setText(detection.getLatitude()+" "+detection.getLongitude());
             RequestOptions options = new RequestOptions()
                     .centerCrop()
-                    .placeholder(R.mipmap.ic_launcher_round)
+                    .placeholder(R.mipmap.ic_launcher)
                     .error(R.mipmap.ic_launcher_round);
-            String disp_ID=Integer.toString(detection.getId());
-            tv1.setText(disp_ID);
-//            tv2.setText(detection.getLatitude()+" "+detection.getLongitude());
             Glide.with(itemView.getContext()).load(detection.getImg()).apply(options).into(avatar);
             DateFormat simple = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
             Date result=new Date(detection.getTimestamp());

@@ -1,10 +1,19 @@
 package com.codersofblvkn.criminaltagging.Activities;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -15,6 +24,8 @@ import com.codersofblvkn.criminaltagging.Fragments.MapsFragment;
 import com.codersofblvkn.criminaltagging.R;
 import com.codersofblvkn.criminaltagging.Utils.ServerKey;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import org.json.JSONObject;
 
@@ -38,7 +49,14 @@ public class MainActivity extends AppCompatActivity{
     String NOTIFICATION_TITLE;
     String NOTIFICATION_MESSAGE;
     String TOPIC;
-
+    private FirebaseAuth mAuth;
+    private FirebaseUser currentUser;
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mAuth = FirebaseAuth.getInstance();
+        currentUser=mAuth.getCurrentUser();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,10 +109,10 @@ public class MainActivity extends AppCompatActivity{
 
 
 
-    class FCMTask extends AsyncTask<Void, Void, Void> {
+    class FCMTask extends AsyncTask<String, Void, Void> {
 
         @Override
-        protected Void doInBackground(Void... voids) {
+        protected Void doInBackground(String... voids) {
 
             try {
                 String result = "";
@@ -113,8 +131,8 @@ public class MainActivity extends AppCompatActivity{
 
                 json.put("to", "/topics/alert");
                 JSONObject info = new JSONObject();
-                info.put("title", "notification title"); // Notification title
-                info.put("body", "message body"); // Notification
+                info.put("title", "Alert"); // Notification title
+                info.put("body", voids[0]); // Notification
                 // body
                 json.put("notification", info);
                 try {
@@ -136,11 +154,76 @@ public class MainActivity extends AppCompatActivity{
                     e.printStackTrace();
                     result = "Failure";
                 }
-                System.out.println("GCM Notification is sent successfully");
+                Toast.makeText(getApplicationContext(),"Alert successful",Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
 
             }
             return null;
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.taskbar_menu, menu);
+        return true;
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId()==R.id.logout)
+        {
+            mAuth.signOut();
+            Intent intent=new Intent(MainActivity.this,LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        }
+        else if(item.getItemId()==R.id.criminal_alert)
+        {
+            LayoutInflater li = LayoutInflater.from(getApplicationContext());
+            View promptsView = li.inflate(R.layout.custom_dialog, null);
+
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                    MainActivity.this);
+
+            // set alert_dialog.xml to alertdialog builder
+            alertDialogBuilder.setView(promptsView);
+
+            final EditText userInput = promptsView.findViewById(R.id.dialoged);
+
+            // set dialog message
+            alertDialogBuilder
+                    .setCancelable(false)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // get user input and set it to result
+                            // edit text
+                            String cid=userInput.getText().toString();
+                            if(!cid.equals("")||cid!=null)
+                            {
+                                new FCMTask().execute("Criminal Detected, CID:"+cid);
+                            }
+                            Toast.makeText(getApplicationContext(), "Entered: "+userInput.getText().toString(), Toast.LENGTH_LONG).show();
+                        }
+                    })
+                    .setNegativeButton("Cancel",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+
+            // create alert dialog
+            AlertDialog alertDialog = alertDialogBuilder.create();
+
+            // show it
+            alertDialog.show();
+        }
+        else if(item.getItemId()==R.id.settings)
+        {
+
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

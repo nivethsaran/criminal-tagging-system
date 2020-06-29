@@ -11,8 +11,9 @@ import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.codersofblvkn.criminaltagging.Activities.TempActivity;
+import com.codersofblvkn.criminaltagging.Activities.ProfileActivity;
 import com.codersofblvkn.criminaltagging.Adapters.DetectionsAdapter;
 import com.codersofblvkn.criminaltagging.Adapters.OnItemClickListener;
 import com.codersofblvkn.criminaltagging.R;
@@ -51,7 +52,7 @@ public class ManualEntryFragment extends Fragment implements OnItemClickListener
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
+    SwipeRefreshLayout srl;
     public ManualEntryFragment() {
         // Required empty public constructor
     }
@@ -89,7 +90,31 @@ public class ManualEntryFragment extends Fragment implements OnItemClickListener
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_manual_entry, container, false);
+
+        srl=view.findViewById(R.id.srl);
+        srl.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                networkCall(view);
+            }
+        });
+        networkCall(view);
+        return view;
+    }
+
+    @Override
+    public void onItemClick(Detection item) {
+//        Toast.makeText(getContext(),"Hello",Toast.LENGTH_SHORT).show();
+        Intent intent=new Intent(getActivity(), ProfileActivity.class);
+        intent.putExtra("detection",item);
+        startActivity(intent);
+    }
+
+    @SuppressLint("CheckResult")
+    public void networkCall(View view)
+    {
         RecyclerView rv=view.findViewById(R.id.rv);
+        srl.setRefreshing(true);
         Observable.fromCallable(() -> {
             Request request = new Request.Builder()
                     .url("http://coders-of-blaviken-api.herokuapp.com/api/detections")
@@ -160,17 +185,10 @@ public class ManualEntryFragment extends Fragment implements OnItemClickListener
                         rv.setItemAnimator(new SlideInUpAnimator());
                         Log.d("Detections",jsonArray.length()+" ");
                     }
+                    srl.setRefreshing(false);
 //                    DetectionsAdapter detectionsAdapter=new DetectionsAdapter();
 
                 });
-        return view;
     }
 
-    @Override
-    public void onItemClick(Detection item) {
-//        Toast.makeText(getContext(),"Hello",Toast.LENGTH_SHORT).show();
-        Intent intent=new Intent(getActivity(), TempActivity.class);
-        intent.putExtra("detection",item);
-        startActivity(intent);
-    }
 }

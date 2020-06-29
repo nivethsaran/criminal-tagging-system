@@ -347,8 +347,8 @@ public class DetectFragment extends Fragment {
                 }
                 String fo= String.valueOf(sb);
 
-                Log.d("Detect", "Server Response is: " + fo + ": " + serverResponseCode);
-
+                Log.d("Detection", "Server Response is: " + fo + ": " + serverResponseCode);
+                Log.d("Detection", "Server Response is: " + fo + ": " + serverResponseMessage);
                 //response code of 200 indicates the server status OK
                 if (serverResponseCode == 200) {
                     getActivity().runOnUiThread(new Runnable() {

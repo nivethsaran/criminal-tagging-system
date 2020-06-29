@@ -1,11 +1,14 @@
 package com.codersofblvkn.criminaltagging.Fragments;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -50,8 +53,7 @@ public class MapsFragment extends Fragment {
         @SuppressLint("CheckResult")
         @Override
         public void onMapReady(GoogleMap googleMap) {
-            LatLng cam = new LatLng(11, 77);
-
+            LatLng cam = new LatLng(20.5937, 78.9629);
             Observable.fromCallable(() -> {
                 Request request = new Request.Builder()
                         .url("http://coders-of-blaviken-api.herokuapp.com/api/detections")
@@ -99,20 +101,52 @@ public class MapsFragment extends Fragment {
                                 }
                                 lonList.add(lon);
                                 latList.add(lat);
-                                googleMap.addMarker(new MarkerOptions().position(new LatLng(lat,lon)).title(tDetect.getString("id")));
+                                googleMap.addMarker(new MarkerOptions().position(new LatLng(lat,lon)).title("Criminal ID:"+tDetect.getString("id")));
                             }
                         }
                     });
 
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(cam));
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(cam, 5.0f));
+            googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                @Override
+                public void onMapClick(LatLng latLng) {
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 5.0f));
+                }
+            });
+
             googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(Marker marker) {
-                    return false;
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15.0f));
+                    marker.showInfoWindow();
+                    return true;
+                }
+
+            });
+
+            googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                @Override
+                public void onInfoWindowClick(Marker marker) {
+                    double lat=marker.getPosition().latitude;
+                    double lon=marker.getPosition().longitude;
+                    String toParse="geo:"+lat+","+lon;
+                    Uri gmmIntentUri = Uri.parse(toParse);
+                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                    mapIntent.setPackage("com.google.android.apps.maps");
+                    if (mapIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+                        startActivity(mapIntent);
+                    }
+                    else
+                    {
+                        Toast.makeText(getActivity().getApplicationContext(),"Maps Application not installed",Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
         }
+
     };
+
+
 
     public MapsFragment() {
         // Required empty public constructor
@@ -142,4 +176,5 @@ public class MapsFragment extends Fragment {
             mapFragment.getMapAsync(callback);
         }
     }
+
 }
