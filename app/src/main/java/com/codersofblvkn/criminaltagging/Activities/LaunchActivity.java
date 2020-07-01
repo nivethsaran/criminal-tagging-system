@@ -1,12 +1,11 @@
 package com.codersofblvkn.criminaltagging.Activities;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +22,7 @@ import io.reactivex.schedulers.Schedulers;
 public class LaunchActivity extends AppCompatActivity {
 ProgressBar progressBar;
     private static final String TAG = "ALERT";
+    @SuppressLint("CheckResult")
     @Override
     protected void onStart() {
         super.onStart();
@@ -58,36 +58,11 @@ ProgressBar progressBar;
                     msg = getString(R.string.msg_subscribe_failed);
                 }
                 Log.d(TAG, msg);
-                Toast.makeText(LaunchActivity.this, msg, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(LaunchActivity.this, msg, Toast.LENGTH_SHORT).show();
             }
         });
 
 
 
-    }
-
-
-
-
-
-    class LaunchTask extends AsyncTask<Void,Void,Void>
-    {
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            Intent intent=new Intent(LaunchActivity.this, LoginActivity.class);
-            startActivity(intent);
-        }
     }
 }

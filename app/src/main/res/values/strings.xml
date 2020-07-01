@@ -10,13 +10,22 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
-
+    <string name="logo">Logo</string>
+    <string name="Email">Email</string>
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
-
     <string name="home_second">Home Second</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
+    <string name="loading_text">Loading…</string>
+    <string name="click_button">Click</string>
+    <string name="gallery_button">Gallery</string>
+    <string name="imageviewtooltip">Image will be displayed here</string>
+    <string name="uploadbutton">Upload</string>
+    <string name="customcid"> CID:</string>
+    <string name="password">Password</string>
+    <string name="showPassword">Show Password</string>
+    <string name="rememberMe">Remember me</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="loginbutton">Login</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

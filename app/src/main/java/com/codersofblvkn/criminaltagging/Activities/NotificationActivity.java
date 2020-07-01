@@ -19,7 +19,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.codersofblvkn.criminaltagging.R;
 import com.codersofblvkn.criminaltagging.Utils.Detection;
-import com.codersofblvkn.criminaltagging.Utils.FCMTask;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -48,14 +47,13 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-public class ProfileActivity extends AppCompatActivity implements Serializable {
+public class NotificationActivity extends AppCompatActivity implements Serializable {
 
     CircleImageView imgView;
     TextView cid,time,coordinates;
     MapView mapView;
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     List<Detection> detections=new ArrayList<Detection>();
-    Detection detection;
     @Override
     protected void onStart() {
         super.onStart();
@@ -101,7 +99,8 @@ public class ProfileActivity extends AppCompatActivity implements Serializable {
 
         mapView.onCreate(savedInstanceState);
 
-        detection=(Detection)getIntent().getSerializableExtra("detection");
+        Intent notIntent=getIntent();
+        int cidCheck=Integer.parseInt(notIntent.getStringExtra("cid").split(":")[1]);
         Observable.fromCallable(() -> {
             Request request = new Request.Builder()
                     .url("http://coders-of-blaviken-api.herokuapp.com/api/detections")
@@ -139,7 +138,7 @@ public class ProfileActivity extends AppCompatActivity implements Serializable {
                             JSONObject tDetect=jsonArray.getJSONObject(i);
                             int id=tDetect.getInt("id");
                             int cid_=tDetect.getInt("cid");
-                            if(cid_==detection.getCid())
+                            if(cid_==cidCheck)
                             {
                                 String[] location =tDetect.getString("location").replace("dot",".").split(",");
                                 if(location.length!=2)
@@ -166,90 +165,94 @@ public class ProfileActivity extends AppCompatActivity implements Serializable {
                                 return (int)(t2.getTimestamp()-t1.getTimestamp());
                             }
                         });
+                        if(detections.size()>=1)
+                        {
+                            CircularProgressDrawable circularProgressDrawable=new CircularProgressDrawable(NotificationActivity.this);
+                            circularProgressDrawable.setStrokeWidth(5);
+                            circularProgressDrawable.setCenterRadius(30);
+                            circularProgressDrawable.start();
+                            RequestOptions options = new RequestOptions()
+                                    .centerCrop()
+                                    .placeholder(circularProgressDrawable)
+                                    .error(R.mipmap.ic_launcher_round);
+                            Glide.with(NotificationActivity.this).load(detections.get(0).getImg()).apply(options).into(imgView);
 
-                        CircularProgressDrawable circularProgressDrawable=new CircularProgressDrawable(ProfileActivity.this);
-                        circularProgressDrawable.setStrokeWidth(5);
-                        circularProgressDrawable.setCenterRadius(30);
-                        circularProgressDrawable.start();
-                        RequestOptions options = new RequestOptions()
-                                .centerCrop()
-                                .placeholder(circularProgressDrawable)
-                                .error(R.mipmap.ic_launcher_round);
-                        Glide.with(ProfileActivity.this).load(detection.getImg()).apply(options).into(imgView);
+                            cid.setText("Criminal ID:"+detections.get(0).getCid());
+                            coordinates.setText("Latest Location:"+detections.get(0).getLatitude()+ (char)0x00B0 + "N ,"+detections.get(0).getLongitude()+ (char)0x00B0 +"E");
 
-                        cid.setText("Criminal ID:"+detection.getCid());
-                        coordinates.setText("Latest Location:"+detections.get(0).getLatitude()+ (char)0x00B0 + "N ,"+detections.get(0).getLongitude()+ (char)0x00B0 +"E");
+                            Date ld=new Date(detections.get(0).getTimestamp());
+                            String ldText=sdf.format(ld);
+                            time.setText("Last Detected:"+ldText+" ");
 
-                        Date ld=new Date(detections.get(0).getTimestamp());
-                        String ldText=sdf.format(ld);
-                        time.setText("Last Detected:"+ldText+" ");
+                            mapView.getMapAsync(new OnMapReadyCallback() {
+                                @Override
+                                public void onMapReady(GoogleMap googleMap) {
 
-                        mapView.getMapAsync(new OnMapReadyCallback() {
-                            @Override
-                            public void onMapReady(GoogleMap googleMap) {
+                                    for(Detection i:detections)
+                                    {
+                                        Date date=new Date(i.getTimestamp());
+                                        String dateText=sdf.format(date);
+                                        googleMap.addMarker(new MarkerOptions()
+                                                .position(new LatLng(i.getLatitude(),i.getLongitude()))
+                                                .title("Timestamp:"+dateText));
+                                    }
 
-                                for(Detection i:detections)
-                                {
-                                    Date date=new Date(i.getTimestamp());
-                                    String dateText=sdf.format(date);
-                                    googleMap.addMarker(new MarkerOptions()
-                                            .position(new LatLng(i.getLatitude(),i.getLongitude()))
-                                            .title("Timestamp:"+dateText));
+                                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(detections.get(0).getLatitude(),detections.get(0).getLongitude()), 5.0f));
+
+                                    googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                                        @Override
+                                        public boolean onMarkerClick(Marker marker) {
+                                            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15.0f));
+                                            marker.showInfoWindow();
+                                            return true;
+                                        }
+                                    });
+
+                                    googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                                        @Override
+                                        public void onInfoWindowClick(Marker marker) {
+                                            double lat=marker.getPosition().latitude;
+                                            double lon=marker.getPosition().longitude;
+                                            String toParse="geo:"+lat+","+lon;
+                                            Uri gmmIntentUri = Uri.parse(toParse);
+                                            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                                            mapIntent.setPackage("com.google.android.apps.maps");
+                                            if (mapIntent.resolveActivity(getPackageManager()) != null) {
+                                                startActivity(mapIntent);
+                                            }
+                                            else
+                                            {
+                                                Toast.makeText(getApplicationContext(),"Maps Application not installed",Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+
                                 }
-
-                                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(detection.getLatitude(),detection.getLongitude()), 5.0f));
-
-                                googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                                    @Override
-                                    public boolean onMarkerClick(Marker marker) {
-                                        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15.0f));
-                                        marker.showInfoWindow();
-                                        return true;
-                                    }
-                                });
-
-                                googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-                                    @Override
-                                    public void onInfoWindowClick(Marker marker) {
-                                        double lat=marker.getPosition().latitude;
-                                        double lon=marker.getPosition().longitude;
-                                        String toParse="geo:"+lat+","+lon;
-                                        Uri gmmIntentUri = Uri.parse(toParse);
-                                        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                                        mapIntent.setPackage("com.google.android.apps.maps");
-                                        if (mapIntent.resolveActivity(getPackageManager()) != null) {
-                                            startActivity(mapIntent);
-                                        }
-                                        else
-                                        {
-                                            Toast.makeText(getApplicationContext(),"Maps Application not installed",Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
-
-                            }
-                        });
+                            });
+                        }
+                        else
+                        {
+                            Intent redirectIntent=new Intent(NotificationActivity.this,MainActivity.class);
+                            redirectIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(redirectIntent);
+                        }
 
                     }
                 });
-
-
-        Log.d("Detection",detection.toString());
-
-
-
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.alert_menu, menu);
+        inflater.inflate(R.menu.home_menu, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        new FCMTask(getApplicationContext()).execute("Criminal Detected, CID:"+ detection.getCid());
+        Intent intent=new Intent(NotificationActivity.this,MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
         return super.onOptionsItemSelected(item);
 
     }

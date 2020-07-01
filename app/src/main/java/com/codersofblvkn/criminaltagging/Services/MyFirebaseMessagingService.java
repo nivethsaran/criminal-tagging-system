@@ -16,7 +16,7 @@ import android.util.Log;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
-import com.codersofblvkn.criminaltagging.Activities.MainActivity;
+import com.codersofblvkn.criminaltagging.Activities.NotificationActivity;
 import com.codersofblvkn.criminaltagging.R;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -31,7 +31,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
         //Setting Intents and get message
-        final Intent intent = new Intent(this, MainActivity.class);
+        final Intent intent = new Intent(this, NotificationActivity.class);
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         int notificationID = new Random().nextInt(3000);
         String title = remoteMessage.getNotification().getTitle();
@@ -44,6 +44,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("cid",message);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
                 PendingIntent.FLAG_ONE_SHOT);
 

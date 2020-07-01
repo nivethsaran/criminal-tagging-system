@@ -19,6 +19,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ContextThemeWrapper;
+import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 
 import com.codersofblvkn.criminaltagging.R;
@@ -118,12 +119,15 @@ public class LoginActivity extends AppCompatActivity {
                 if (!username.getText().toString().equals("") && !password.getText().toString().equals("")) {
                     mAuth.signInWithEmailAndPassword(username.getText().toString(), password.getText().toString())
                             .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
                                         currentUser = mAuth.getCurrentUser();
                                                     final Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                                                        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+
+
+                                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && BiometricManager.from(LoginActivity.this).canAuthenticate()==0) {
                                                             Executor executor = Executors.newSingleThreadExecutor();
                                                             biometricPrompt = new BiometricPrompt(LoginActivity.this, executor, new BiometricPrompt.AuthenticationCallback() {
                                                                 @Override

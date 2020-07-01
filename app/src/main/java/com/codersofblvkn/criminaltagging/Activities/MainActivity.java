@@ -2,7 +2,6 @@ package com.codersofblvkn.criminaltagging.Activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,18 +21,11 @@ import com.codersofblvkn.criminaltagging.Fragments.DetectFragment;
 import com.codersofblvkn.criminaltagging.Fragments.ManualEntryFragment;
 import com.codersofblvkn.criminaltagging.Fragments.MapsFragment;
 import com.codersofblvkn.criminaltagging.R;
+import com.codersofblvkn.criminaltagging.Utils.FCMTask;
 import com.codersofblvkn.criminaltagging.Utils.ServerKey;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 
 public class MainActivity extends AppCompatActivity{
@@ -109,58 +101,7 @@ public class MainActivity extends AppCompatActivity{
 
 
 
-    class FCMTask extends AsyncTask<String, Void, Void> {
 
-        @Override
-        protected Void doInBackground(String... voids) {
-
-            try {
-                String result = "";
-                URL url = new URL(API_URL_FCM);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-                conn.setUseCaches(false);
-                conn.setDoInput(true);
-                conn.setDoOutput(true);
-
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Authorization", "key=" + AUTH_KEY_FCM);
-                conn.setRequestProperty("Content-Type", "application/json");
-
-                JSONObject json = new JSONObject();
-
-                json.put("to", "/topics/alert");
-                JSONObject info = new JSONObject();
-                info.put("title", "Alert"); // Notification title
-                info.put("body", voids[0]); // Notification
-                // body
-                json.put("notification", info);
-                try {
-                    OutputStreamWriter wr = new OutputStreamWriter(
-                            conn.getOutputStream());
-                    wr.write(json.toString());
-                    wr.flush();
-
-                    BufferedReader br = new BufferedReader(new InputStreamReader(
-                            (conn.getInputStream())));
-
-                    String output;
-                    System.out.println("Output from Server .... \n");
-                    while ((output = br.readLine()) != null) {
-                        System.out.println(output);
-                    }
-                    result = "Success";
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    result = "Failure";
-                }
-                Toast.makeText(getApplicationContext(),"Alert successful",Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-
-            }
-            return null;
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -202,7 +143,7 @@ public class MainActivity extends AppCompatActivity{
                             String cid=userInput.getText().toString();
                             if(!cid.equals("")||cid!=null)
                             {
-                                new FCMTask().execute("Criminal Detected, CID:"+cid);
+                                new FCMTask(getApplicationContext()).execute("Criminal Detected, CID:"+cid);
                             }
                             Toast.makeText(getApplicationContext(), "Entered: "+userInput.getText().toString(), Toast.LENGTH_LONG).show();
                         }
