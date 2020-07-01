@@ -18,12 +18,15 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
 import com.codersofblvkn.criminaltagging.R;
 import com.codersofblvkn.criminaltagging.Utils.FilePath;
+import com.codersofblvkn.criminaltagging.Utils.InternetConnection;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -38,6 +41,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
@@ -50,16 +54,16 @@ public class DetectFragment extends Fragment {
     Bitmap bitmap;
     String finalPath=null;
     private static final int PIC_ID=1001;
-    private static final int MY_PERMISSIONS_REQUEST_WRITE_STORAGE =1002;
+    private static final int CAMERA_PERMISSIONS =1002;
     private static final int PICK_IMAGE_REQUEST=1003;
     Context context;
     Uri filepath=null;
     Uri photoURI;
     ProgressDialog dialog;
-    String SERVER_URL="http://upload-dimg.herokuapp.com/upload/image";
+    final String SERVER_URL="http://upload-dimg.herokuapp.com/upload/image";
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
-    private static String[] PERMISSIONS_STORAGE = {
+    private static final String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
@@ -116,24 +120,34 @@ public class DetectFragment extends Fragment {
         button_upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    final String sendFilePath=finalPath;
-                    if(sendFilePath!=null && imageView.getDrawable()!=null)
-                    {
-                        Log.d("Detect",sendFilePath);
-                        dialog = ProgressDialog.show(getActivity(), "", "Uploading File...", true);
 
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                //creating new thread to handle Http Operations
-                                uploadFile(sendFilePath);
-                            }
-                        }).start();
+
+                    if(InternetConnection.checkConnection(getActivity().getApplicationContext()))
+                    {
+                        final String sendFilePath=finalPath;
+                        if(sendFilePath!=null && imageView.getDrawable()!=null)
+                        {
+                            Log.d("Detect",sendFilePath);
+                            dialog = ProgressDialog.show(getActivity(), "", "Uploading File...", true);
+
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    //creating new thread to handle Http Operations
+                                    uploadFile(sendFilePath);
+                                }
+                            }).start();
+                        }
+                        else
+                        {
+                            Toast.makeText(getContext(),"Choose an image to upload",Toast.LENGTH_SHORT).show();
+                        }
                     }
                     else
                     {
-                        Toast.makeText(getContext(),"Choose an image to upload",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity().getApplicationContext(),getString(R.string.no_internet),Toast.LENGTH_SHORT).show();
                     }
+
             }
         });
 
@@ -142,24 +156,38 @@ public class DetectFragment extends Fragment {
         button_capture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent pictureIntent = new Intent(
-                        MediaStore.ACTION_IMAGE_CAPTURE);
-                if(pictureIntent.resolveActivity(getContext().getPackageManager()) != null){
-                    //Create a file to store the image
-                    File photoFile = null;
-                    try {
-                        photoFile = createImageFile();
-                    } catch (IOException ex) {
-                        // Error occurred while creating the File
+
+
+                if (ContextCompat.checkSelfPermission(
+                        getActivity().getApplicationContext(), Manifest.permission.CAMERA) ==
+                        PackageManager.PERMISSION_GRANTED) {
+                    // You can use the API that requires the permission.
+                    Intent pictureIntent = new Intent(
+                            MediaStore.ACTION_IMAGE_CAPTURE);
+                    if(pictureIntent.resolveActivity(Objects.requireNonNull(getContext()).getPackageManager()) != null){
+                        //Create a file to store the image
+                        File photoFile = null;
+                        try {
+                            photoFile = createImageFile();
+                        } catch (IOException ex) {
+                            // Error occurred while creating the File
+                        }
+                        if (photoFile != null) {
+                            filepath = FileProvider.getUriForFile(getContext(),"com.codersofblvkn.criminaltagging.provider",photoFile);
+                            pictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
+                                    filepath);
+                            startActivityForResult(pictureIntent,
+                                    PIC_ID);
+                        }
                     }
-                    if (photoFile != null) {
-                        filepath = FileProvider.getUriForFile(getContext(),"com.codersofblvkn.criminaltagging.provider",photoFile);
-                        pictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
-                                filepath);
-                        startActivityForResult(pictureIntent,
-                                PIC_ID);
-                    }
+                } else {
+                    // You can directly ask for the permission.
+                    // The registered ActivityResultCallback gets the result of this request.
+                    requestPermissions(new String[]{Manifest.permission.CAMERA},CAMERA_PERMISSIONS);
+
+
                 }
+
 
             }
         });
@@ -256,7 +284,7 @@ public class DetectFragment extends Fragment {
             Toast.makeText(getActivity(), "Error occured, URI is invalid", Toast.LENGTH_LONG).show();
         }
     }
-    public int uploadFile(final String selectedFilePath) {
+    public void uploadFile(final String selectedFilePath) {
 
         int serverResponseCode = 0;
 
@@ -283,7 +311,6 @@ public class DetectFragment extends Fragment {
 //                    tvFileName.setText("Source File Doesn't Exist: " + selectedFilePath);
                 }
             });
-            return 0;
         } else {
             try {
                 FileInputStream fileInputStream = null;
@@ -395,9 +422,27 @@ public class DetectFragment extends Fragment {
                 });
             }
             dialog.dismiss();
-            return serverResponseCode;
         }
 
     }
 
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if(requestCode==CAMERA_PERMISSIONS)
+        {
+            if (grantResults.length > 0 &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+
+            }
+            else
+            {
+                Toast.makeText(getActivity().getApplicationContext(),"Permissions not granted",Toast.LENGTH_SHORT).show();
+            }
+        }
+
+    }
 }

@@ -21,8 +21,8 @@ import java.util.List;
 
 public class DetectionsAdapter extends RecyclerView.Adapter<DetectionsAdapter.DetectionsViewHolder> {
 
-    List<Detection> list;
-    OnItemClickListener listener;
+    final List<Detection> list;
+    final OnItemClickListener listener;
     public DetectionsAdapter(List<Detection> list,OnItemClickListener listener)
     {
         this.list=list;
@@ -33,7 +33,7 @@ public class DetectionsAdapter extends RecyclerView.Adapter<DetectionsAdapter.De
     @NonNull
     @Override
     public DetectionsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new DetectionsViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.detection_item,parent,false),listener);
+        return new DetectionsViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.detection_item, parent, false), listener);
     }
 
     @Override
@@ -46,11 +46,12 @@ public class DetectionsAdapter extends RecyclerView.Adapter<DetectionsAdapter.De
         return list.size();
     }
 
-    public class DetectionsViewHolder extends RecyclerView.ViewHolder {
+    public static class DetectionsViewHolder extends RecyclerView.ViewHolder {
 
-        TextView tv1,tv2;
-        ImageView avatar;
-        OnItemClickListener listener;
+        final TextView tv1;
+        final TextView tv2;
+        final ImageView avatar;
+        final OnItemClickListener listener;
         public DetectionsViewHolder(@NonNull View itemView,OnItemClickListener listener) {
             super(itemView);
             tv1=itemView.findViewById(R.id.textView2);

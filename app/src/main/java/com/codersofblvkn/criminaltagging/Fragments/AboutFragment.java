@@ -9,22 +9,20 @@ import androidx.fragment.app.Fragment;
 
 import com.codersofblvkn.criminaltagging.R;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link AboutFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class AboutFragment extends Fragment {
 
     public AboutFragment() {
         // Required empty public constructor
     }
 
-    public static AboutFragment newInstance() {
-        AboutFragment fragment = new AboutFragment();
-        Bundle args = new Bundle();
-        return fragment;
-    }
+// --Commented out by Inspection START (01-07-2020 09:41 PM):
+//    public static AboutFragment newInstance() {
+//        AboutFragment fragment = new AboutFragment();
+//        Bundle args = new Bundle();
+//        return fragment;
+//    }
+// --Commented out by Inspection STOP (01-07-2020 09:41 PM)
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

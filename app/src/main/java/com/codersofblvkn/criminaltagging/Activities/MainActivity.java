@@ -2,6 +2,7 @@ package com.codersofblvkn.criminaltagging.Activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,6 +23,7 @@ import com.codersofblvkn.criminaltagging.Fragments.ManualEntryFragment;
 import com.codersofblvkn.criminaltagging.Fragments.MapsFragment;
 import com.codersofblvkn.criminaltagging.R;
 import com.codersofblvkn.criminaltagging.Utils.FCMTask;
+import com.codersofblvkn.criminaltagging.Utils.InternetConnection;
 import com.codersofblvkn.criminaltagging.Utils.ServerKey;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,23 +33,23 @@ import com.google.firebase.auth.FirebaseUser;
 public class MainActivity extends AppCompatActivity{
 
     BottomNavigationView bottomNavigation;
-    private static final String TAG = "ALERT";
+    // --Commented out by Inspection (01-07-2020 09:41 PM):private static final String TAG = "ALERT";
 
     public final static String AUTH_KEY_FCM = new ServerKey().getSERVER_KEY();
     public final static String API_URL_FCM = "https://fcm.googleapis.com/fcm/send";
-    private static final int MY_PERMISSIONS_REQUEST_WRITE_STORAGE =1002;
-    final private String contentType = "application/json";
+    // --Commented out by Inspection (01-07-2020 09:41 PM):private static final int MY_PERMISSIONS_REQUEST_WRITE_STORAGE =1002;
+    // --// --Comm// --Commented out by Inspection (01-07-2020 09:41 PM):ented out by Inspection (01-07-2020 09:41 PM):Commented out by Inspection (01// --Commented out by Inspection (01-07-2020 09:41 PM):-07-2020 09:41 PM):final private String contentType = "application/json";
 
     String NOTIFICATION_TITLE;
     String NOTIFICATION_MESSAGE;
     String TOPIC;
     private FirebaseAuth mAuth;
-    private FirebaseUser currentUser;
+
     @Override
     protected void onStart() {
         super.onStart();
         mAuth = FirebaseAuth.getInstance();
-        currentUser=mAuth.getCurrentUser();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
     }
 
     @Override
@@ -141,11 +143,18 @@ public class MainActivity extends AppCompatActivity{
                             // get user input and set it to result
                             // edit text
                             String cid=userInput.getText().toString();
-                            if(!cid.equals("")||cid!=null)
+                            if(!cid.equals(""))
                             {
-                                new FCMTask(getApplicationContext()).execute("Criminal Detected, CID:"+cid);
+                                if(InternetConnection.checkConnection(getApplicationContext()))
+                                {
+                                    new FCMTask(getApplicationContext()).execute("Criminal Detected, CID:"+ cid);
+                                }
+                                else
+                                {
+                                    Toast.makeText(getApplicationContext(),getString(R.string.no_internet),Toast.LENGTH_SHORT).show();
+                                }
                             }
-                            Toast.makeText(getApplicationContext(), "Entered: "+userInput.getText().toString(), Toast.LENGTH_LONG).show();
+//                            Toast.makeText(getApplicationContext(), "Entered: "+userInput.getText().toString(), Toast.LENGTH_LONG).show();
                         }
                     })
                     .setNegativeButton("Cancel",
@@ -163,7 +172,23 @@ public class MainActivity extends AppCompatActivity{
         }
         else if(item.getItemId()==R.id.settings)
         {
-
+            Toast.makeText(getApplicationContext(),"Yet to be implemented",Toast.LENGTH_SHORT).show();
+        }
+        else if(item.getItemId()==R.id.ic_track_locate)
+        {
+            SharedPreferences sharedPref = getSharedPreferences("alertcred",MODE_PRIVATE);
+            String defaultValue = "-1";
+            String cidData = sharedPref.getString(getString(R.string.preference_cid), defaultValue);
+            if(cidData==defaultValue)
+            {
+                Toast.makeText(getApplicationContext(),"No alerts currently",Toast.LENGTH_SHORT).show();
+            }
+            else
+            {
+                Intent intent=new Intent(MainActivity.this, NotificationActivity.class);
+                intent.putExtra("cid",cidData);
+                startActivity(intent);
+            }
         }
         return super.onOptionsItemSelected(item);
     }

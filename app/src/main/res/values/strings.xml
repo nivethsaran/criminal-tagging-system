@@ -27,5 +27,7 @@
     <string name="rememberMe">Remember me</string>
     <string name="forgot_password">Forgot Password?</string>
     <string name="loginbutton">Login</string>
+    <string name="preference_cid">cid_p</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="no_internet">Please connect to internet and try again</string>
 </resources>

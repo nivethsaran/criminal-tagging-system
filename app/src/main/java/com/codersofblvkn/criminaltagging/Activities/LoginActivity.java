@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.hardware.fingerprint.FingerprintManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.method.PasswordTransformationMethod;
@@ -23,6 +22,7 @@ import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 
 import com.codersofblvkn.criminaltagging.R;
+import com.codersofblvkn.criminaltagging.Utils.InternetConnection;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -35,16 +35,13 @@ import java.util.concurrent.Executors;
 
 public class LoginActivity extends AppCompatActivity {
     Button login_button;
-    TextView forgot_textview, signup_textview;
+    TextView forgot_textview;
     EditText username, password;
     CheckBox show_password,remember_me;
     public BiometricPrompt biometricPrompt;
-    FingerprintManager fingerprintManager;
     private ProgressDialog dialog;
-
     private FirebaseAuth mAuth;
     FirebaseUser currentUser;
-    private FirebaseFirestore db;
 
     @Override
     protected void onStart() {
@@ -54,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
         password.setText(sp.getString("loginpassword",""));
         remember_me.setChecked(sp.getBoolean("remembermestatus",false));
         mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
         currentUser = mAuth.getCurrentUser();
     }
 
@@ -117,56 +114,63 @@ public class LoginActivity extends AppCompatActivity {
                 dialog.setMessage("Logging In...");
                 dialog.show();
                 if (!username.getText().toString().equals("") && !password.getText().toString().equals("")) {
-                    mAuth.signInWithEmailAndPassword(username.getText().toString(), password.getText().toString())
-                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    if(InternetConnection.checkConnection(getApplicationContext()))
+                    {
+                        mAuth.signInWithEmailAndPassword(username.getText().toString(), password.getText().toString())
+                                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
 
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if (task.isSuccessful()) {
-                                        currentUser = mAuth.getCurrentUser();
-                                                    final Intent i = new Intent(LoginActivity.this, MainActivity.class);
-
-
-                                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && BiometricManager.from(LoginActivity.this).canAuthenticate()==0) {
-                                                            Executor executor = Executors.newSingleThreadExecutor();
-                                                            biometricPrompt = new BiometricPrompt(LoginActivity.this, executor, new BiometricPrompt.AuthenticationCallback() {
-                                                                @Override
-                                                                public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
-                                                                    super.onAuthenticationError(errorCode, errString);
-                                                                }
-
-                                                                @Override
-                                                                public void onAuthenticationFailed() {
-                                                                    super.onAuthenticationFailed();
-                                                                }
-
-                                                                @Override
-                                                                public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
-                                                                    super.onAuthenticationSucceeded(result);
-                                                                    startActivity(i);
+                                    @Override
+                                    public void onComplete(@NonNull Task<AuthResult> task) {
+                                        if (task.isSuccessful()) {
+                                            currentUser = mAuth.getCurrentUser();
+                                            final Intent i = new Intent(LoginActivity.this, MainActivity.class);
 
 
-                                                                }
-                                                            });
-                                                            BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                                                                    .setTitle("Login Using Fingerprint")
-                                                                    .setNegativeButtonText("Dismiss")
-                                                                    .build();
-                                                            biometricPrompt.authenticate(promptInfo);
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && BiometricManager.from(LoginActivity.this).canAuthenticate()==BiometricManager.BIOMETRIC_SUCCESS) {
+                                                Executor executor = Executors.newSingleThreadExecutor();
+                                                biometricPrompt = new BiometricPrompt(LoginActivity.this, executor, new BiometricPrompt.AuthenticationCallback() {
+                                                    @Override
+                                                    public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                                                        super.onAuthenticationError(errorCode, errString);
+                                                    }
 
-                                    }
-                                                        else
-                                                        {
-                                                            startActivity(i);
-                                                        }
-                                    }else {
-                                        if (dialog.isShowing()) {
-                                            dialog.dismiss();
+                                                    @Override
+                                                    public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                                                        super.onAuthenticationSucceeded(result);
+                                                        startActivity(i);
+
+
+                                                    }
+                                                });
+                                                BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                                                        .setTitle("Login Using Fingerprint")
+                                                        .setNegativeButtonText("Dismiss")
+                                                        .build();
+                                                biometricPrompt.authenticate(promptInfo);
+
+                                            }
+                                            else
+                                            {
+                                                startActivity(i);
+                                            }
+                                        }else {
+                                            if (dialog.isShowing()) {
+                                                dialog.dismiss();
+                                            }
+                                            Toast.makeText(getApplicationContext(), "Invalid Credentials", Toast.LENGTH_SHORT).show();
                                         }
-                                        Toast.makeText(getApplicationContext(), "Invalid Credentials", Toast.LENGTH_SHORT).show();
                                     }
-                                }
-                            });
+                                });
+                    }
+
+                    else
+                    {
+                        if (dialog.isShowing()) {
+                            dialog.dismiss();
+                        }
+                        Toast.makeText(getApplicationContext(),getString(R.string.no_internet),Toast.LENGTH_SHORT).show();
+                    }
+
 
 
                 } else {

@@ -11,6 +11,15 @@ public class Detection implements Serializable {
     int id;
     int cid;
 
+    public Detection(double latitude, double longitude, long timestamp, String img, int id, int cid) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.timestamp = timestamp;
+        this.img = img;
+        this.id = id;
+        this.cid = cid;
+    }
+
     @Override
     public String toString() {
         return "Detection{" +
@@ -68,15 +77,6 @@ public class Detection implements Serializable {
     }
 
     public void setCid(int cid) {
-        this.cid = cid;
-    }
-
-    public Detection(double latitude, double longitude, long timestamp, String img, int id, int cid) {
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.timestamp = timestamp;
-        this.img = img;
-        this.id = id;
         this.cid = cid;
     }
 }

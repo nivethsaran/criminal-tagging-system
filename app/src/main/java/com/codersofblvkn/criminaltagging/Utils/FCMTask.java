@@ -2,6 +2,7 @@ package com.codersofblvkn.criminaltagging.Utils;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.Toast;
 
 import org.json.JSONObject;
@@ -11,13 +12,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Objects;
 
 import static com.codersofblvkn.criminaltagging.Activities.MainActivity.API_URL_FCM;
 import static com.codersofblvkn.criminaltagging.Activities.MainActivity.AUTH_KEY_FCM;
 
 public class FCMTask extends AsyncTask<String, Void, Void> {
 
-    Context context;
+    final Context context;
     public FCMTask(Context context)
     {
         this.context=context;
@@ -68,7 +70,7 @@ public class FCMTask extends AsyncTask<String, Void, Void> {
             }
             Toast.makeText(context,"Alert successful",Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
-
+            Log.e("FCMError", Objects.requireNonNull(e.getMessage()));
         }
         return null;
     }

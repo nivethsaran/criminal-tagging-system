@@ -6,4 +6,10 @@
         android:icon="@drawable/ic_alertbell"
         android:title="Alert"
         app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/ic_reload"
+        android:icon="@drawable/ic_reload"
+        android:title="Reload Page"
+        app:showAsAction="ifRoom"/>
 </menu>

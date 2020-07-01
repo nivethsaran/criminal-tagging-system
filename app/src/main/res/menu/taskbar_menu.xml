@@ -14,4 +14,9 @@
         android:icon="@drawable/ic_settings"
         android:title="Settings" />
 
+    <item
+        android:id="@+id/ic_track_locate"
+        android:icon="@drawable/ic_track_locate"
+        android:title="Track alert" />
+
 </menu>
