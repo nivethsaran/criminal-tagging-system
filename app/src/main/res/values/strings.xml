@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Criminal Detecc</string>
+    <string name="app_name">Jatayu</string>
     <string name="take_picture">Take Picture</string>
     <string name="msg_subscribe_failed">Subscription Failed</string>
     <string name="msg_subscribed">Message Subscribed</string>
