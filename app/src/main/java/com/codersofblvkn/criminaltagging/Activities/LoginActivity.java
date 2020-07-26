@@ -71,7 +71,7 @@ public class LoginActivity extends AppCompatActivity {
         forgot_textview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(LoginActivity.this, "Mail Sent", Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, getString(R.string.mailsent), Toast.LENGTH_SHORT).show();
                 mAuth.sendPasswordResetEmail(username.getText().toString());
             }
         });
@@ -143,8 +143,8 @@ public class LoginActivity extends AppCompatActivity {
                                                     }
                                                 });
                                                 BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                                                        .setTitle("Login Using Fingerprint")
-                                                        .setNegativeButtonText("Dismiss")
+                                                        .setTitle(getString(R.string.loginusingfingerprint))
+                                                        .setNegativeButtonText(getString(R.string.dismiss))
                                                         .build();
                                                 biometricPrompt.authenticate(promptInfo);
 
@@ -157,7 +157,7 @@ public class LoginActivity extends AppCompatActivity {
                                             if (dialog.isShowing()) {
                                                 dialog.dismiss();
                                             }
-                                            Toast.makeText(getApplicationContext(), "Invalid Credentials", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(getApplicationContext(), getString(R.string.invalidcreds), Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                 });
@@ -177,7 +177,7 @@ public class LoginActivity extends AppCompatActivity {
                     if (dialog.isShowing()) {
                         dialog.dismiss();
                     }
-                    Toast.makeText(getApplicationContext(), "Enter data", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), getString(R.string.enterdata), Toast.LENGTH_SHORT).show();
                 }
             }
         });

@@ -8,6 +8,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,7 +44,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.Observable;
@@ -51,10 +56,13 @@ import io.reactivex.schedulers.Schedulers;
 public class NotificationActivity extends AppCompatActivity implements Serializable {
 
     CircleImageView imgView;
-    TextView cid,time,coordinates;
+    TextView cid,time,coordinates,did,name,gender;
     MapView mapView;
+    ProgressBar seekBar;
     final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     final List<Detection> detections=new ArrayList<Detection>();
+    String name_,gender_,picturePath;
+    int severity;
     int cidCheck;
     @Override
     protected void onStart() {
@@ -98,7 +106,11 @@ public class NotificationActivity extends AppCompatActivity implements Serializa
         time=findViewById(R.id.time);
         coordinates=findViewById(R.id.coordinates);
         mapView=findViewById(R.id.mapView);
-
+        name=findViewById(R.id.name);
+        gender=findViewById(R.id.gender);
+        did=findViewById(R.id.did);
+        did.setVisibility(View.GONE);
+        seekBar=findViewById(R.id.severity);
         mapView.onCreate(savedInstanceState);
 
         Intent notIntent=getIntent();
@@ -113,36 +125,71 @@ public class NotificationActivity extends AppCompatActivity implements Serializa
         if(InternetConnection.checkConnection(getApplicationContext()))
         {
             Observable.fromCallable(() -> {
-                Request request = new Request.Builder()
+
+                Map<Integer,String> map=new HashMap<Integer,String>();
+                @SuppressLint("CheckResult") Request request1 = new Request.Builder()
                         .url("http://coders-of-blaviken-api.herokuapp.com/api/detections")
+                        .build();
+                @SuppressLint("CheckResult") Request request2 = new Request.Builder()
+                        .url("http://coders-of-blaviken-api.herokuapp.com/api/criminals/"+cidCheck)
                         .build();
                 try {
                     OkHttpClient sHttpClient=new OkHttpClient();
-                    Response response = sHttpClient.newCall(request).execute();
+                    Response response = sHttpClient.newCall(request1).execute();
                     if(response.isSuccessful())
                     {
-                        return response.body().string();
+                        map.put(1,response.body().string());
                     }
                     else
                     {
-                        return null;
+                        Log.e("FailureCheck", "Failure");
+                        map.put(1,null);
                     }
                 } catch (IOException e) {
+                    map.put(1,null);
                     Log.e("Network request", "Failure", e);
                 }
 
-                return null;
+                try {
+                    OkHttpClient sHttpClient=new OkHttpClient();
+                    Response response = sHttpClient.newCall(request2).execute();
+                    if(response.isSuccessful())
+                    {
+                        map.put(2,response.body().string());
+
+                    }
+                    else
+                    {
+                        Log.e("FailureCheck", "Failure");
+                        map.put(2,null);
+                    }
+                } catch (IOException e) {
+                    map.put(2,null);
+                    Log.e("Network request", "Failure", e);
+                }
+                return map;
             })
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe((result) -> {
 
-                        if(result!=null)
+                        if(result.get(1)!=null&&result.get(2)!=null)
                         {
 
-                            JSONObject jsonObject=new JSONObject(result);
+                            String result1=result.get(1);
+                            String result2=result.get(2);
+                            JSONObject jsonObject=new JSONObject(result1);
                             JSONArray jsonArray=jsonObject.getJSONArray("detections");
-
+                            JSONObject result2Object=new JSONObject(result2).getJSONArray("criminals").getJSONObject(0);
+                            name_=getString(R.string.name)+" "+result2Object.getString("name");
+                            gender_=getString(R.string.gender)+" "+result2Object.getString("gender");
+                            severity=result2Object.getInt("severity");
+                            picturePath=result2Object.getString("picture");
+                            seekBar.setMax(100);
+                            seekBar.setProgress(severity);
+                            name.setText(name_);
+                            gender.setText(gender_);
+                            seekBar.setEnabled(false);
                             for(int i=0;i<jsonArray.length();i++)
                             {
                                 double lat=0,lon=0;
@@ -186,14 +233,15 @@ public class NotificationActivity extends AppCompatActivity implements Serializa
                                         .centerCrop()
                                         .placeholder(circularProgressDrawable)
                                         .error(R.mipmap.ic_launcher_round);
-                                Glide.with(NotificationActivity.this).load(detections.get(0).getImg()).apply(options).into(imgView);
-
-                                cid.setText("Criminal ID:"+detections.get(0).getCid());
-                                coordinates.setText("Latest Location:"+detections.get(0).getLatitude()+ (char)0x00B0 + "N ,"+detections.get(0).getLongitude()+ (char)0x00B0 +"E");
+                                Glide.with(NotificationActivity.this).load(picturePath).apply(options).into(imgView);
+                                String tempCid=getString(R.string.criminalid)+" "+detections.get(0).getCid();
+                                cid.setText(tempCid);
+                                String tempLatestLoc=getString(R.string.latestloc)+detections.get(0).getLatitude()+ (char)0x00B0 + "N ,"+detections.get(0).getLongitude()+ (char)0x00B0 +"E";
+                                coordinates.setText(tempLatestLoc);
 
                                 Date ld=new Date(detections.get(0).getTimestamp());
-                                String ldText=sdf.format(ld);
-                                time.setText("Last Detected:"+ldText+" ");
+                                String ldText=getString(R.string.lastDetected)+sdf.format(ld);
+                                time.setText(ldText);
 
                                 mapView.getMapAsync(new OnMapReadyCallback() {
                                     @Override
@@ -202,10 +250,10 @@ public class NotificationActivity extends AppCompatActivity implements Serializa
                                         for(Detection i:detections)
                                         {
                                             Date date=new Date(i.getTimestamp());
-                                            String dateText=sdf.format(date);
+                                            String dateText=getString(R.string.timestamp)+sdf.format(date);
                                             googleMap.addMarker(new MarkerOptions()
                                                     .position(new LatLng(i.getLatitude(),i.getLongitude()))
-                                                    .title("Timestamp:"+dateText));
+                                                    .title(dateText));
                                         }
 
                                         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(detections.get(0).getLatitude(),detections.get(0).getLongitude()), 5.0f));
@@ -233,7 +281,7 @@ public class NotificationActivity extends AppCompatActivity implements Serializa
                                                 }
                                                 else
                                                 {
-                                                    Toast.makeText(getApplicationContext(),"Maps Application not installed",Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(getApplicationContext(),getString(R.string.mapnotinstalled),Toast.LENGTH_SHORT).show();
                                                 }
                                             }
                                         });

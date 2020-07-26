@@ -62,8 +62,10 @@ public class DetectionsAdapter extends RecyclerView.Adapter<DetectionsAdapter.De
 
         public void bind(Detection detection) {
 
-            String disp_ID=Integer.toString(detection.getId());
-            tv1.setText("Criminal ID:"+disp_ID);
+
+            String disp_ID= itemView.getContext().getString(R.string.detectionid)+Integer.toString(detection.getId());
+
+            tv1.setText(disp_ID);
 //            tv2.setText(detection.getLatitude()+" "+detection.getLongitude());
             RequestOptions options = new RequestOptions()
                     .centerCrop()

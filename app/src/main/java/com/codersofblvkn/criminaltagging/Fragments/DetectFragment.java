@@ -128,7 +128,7 @@ public class DetectFragment extends Fragment {
                         if(sendFilePath!=null && imageView.getDrawable()!=null)
                         {
                             Log.d("Detect",sendFilePath);
-                            dialog = ProgressDialog.show(getActivity(), "", "Uploading File...", true);
+                            dialog = ProgressDialog.show(getActivity(), "", getString(R.string.uploadingfile), true);
 
                             new Thread(new Runnable() {
                                 @Override
@@ -140,7 +140,7 @@ public class DetectFragment extends Fragment {
                         }
                         else
                         {
-                            Toast.makeText(getContext(),"Choose an image to upload",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(),getString(R.string.chooseimagetoupload),Toast.LENGTH_SHORT).show();
                         }
                     }
                     else
@@ -281,7 +281,7 @@ public class DetectFragment extends Fragment {
 //            Log.d("Detect", FilePath.getPath(getContext(),filepath).toString());
             finalPath= FilePath.getPath(getContext(),filepath);
         } else{
-            Toast.makeText(getActivity(), "Error occured, URI is invalid", Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), getString(R.string.urierror), Toast.LENGTH_LONG).show();
         }
     }
     public void uploadFile(final String selectedFilePath) {
@@ -398,7 +398,7 @@ public class DetectFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(getActivity(), "File Not Found", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.filenotfound), Toast.LENGTH_SHORT).show();
                     }
                 });
             } catch (MalformedURLException e) {
@@ -407,7 +407,7 @@ public class DetectFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(getActivity(), "URL Error", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.urlerror), Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -417,7 +417,7 @@ public class DetectFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(getActivity(), "Read/Write Error", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.rwerror), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -440,7 +440,7 @@ public class DetectFragment extends Fragment {
             }
             else
             {
-                Toast.makeText(getActivity().getApplicationContext(),"Permissions not granted",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity().getApplicationContext(),getString(R.string.png),Toast.LENGTH_SHORT).show();
             }
         }
 

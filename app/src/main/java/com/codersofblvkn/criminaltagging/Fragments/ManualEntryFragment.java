@@ -3,10 +3,14 @@ package com.codersofblvkn.criminaltagging.Fragments;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -52,8 +56,10 @@ public class ManualEntryFragment extends Fragment implements OnItemClickListener
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-
+    DetectionsAdapter detectionsAdapter,editDetectionAdapter;
     SwipeRefreshLayout srl;
+    TextView notext;
+    EditText cid_ed;
     public ManualEntryFragment() {
         // Required empty public constructor
     }
@@ -83,6 +89,11 @@ public class ManualEntryFragment extends Fragment implements OnItemClickListener
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_manual_entry, container, false);
+
+
+        cid_ed=view.findViewById(R.id.cid_ed);
+
+        notext=view.findViewById(R.id.nodata);
 
         srl=view.findViewById(R.id.srl);
         srl.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -139,6 +150,8 @@ public class ManualEntryFragment extends Fragment implements OnItemClickListener
 
                         if(result!=null)
                         {
+                            rv.setVisibility(View.VISIBLE);
+                            notext.setVisibility(View.GONE);
                             List<Detection> detections=new ArrayList<Detection>();
                             JSONObject jsonObject=new JSONObject(result);
                             JSONArray jsonArray=jsonObject.getJSONArray("detections");
@@ -175,12 +188,72 @@ public class ManualEntryFragment extends Fragment implements OnItemClickListener
                                     return t1.getId()-t2.getId();
                                 }
                             });
-                            DetectionsAdapter detectionsAdapter=new DetectionsAdapter(detections, this);
+                            detectionsAdapter =new DetectionsAdapter(detections, this);
                             rv.setAdapter(detectionsAdapter);
                             LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
                             rv.setLayoutManager(layoutManager);
                             rv.setItemAnimator(new SlideInUpAnimator());
                             Log.d("Detections",jsonArray.length()+" ");
+
+                            cid_ed.addTextChangedListener(new TextWatcher() {
+                                @Override
+                                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+
+                                }
+
+                                @Override
+                                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                                    if(!charSequence.toString().equals(""))
+                                    {
+                                        List<Detection> detections_new=new ArrayList<Detection>();
+                                        for (Detection det:detections)
+                                        {
+                                            if(det.getCid()==Integer.parseInt(charSequence.toString()))
+                                            {
+                                                detections_new.add(det);
+                                            }
+                                        }
+                                        if(detections_new.size()>0)
+                                        {
+                                            editDetectionAdapter=new DetectionsAdapter(detections_new, new OnItemClickListener() {
+                                                @Override
+                                                public void onItemClick(Detection item) {
+                                                    Intent intent=new Intent(getActivity(), ProfileActivity.class);
+                                                    intent.putExtra("detection",item);
+                                                    startActivity(intent);
+                                                }
+                                            });
+                                            rv.setVisibility(View.VISIBLE);
+                                            notext.setVisibility(View.GONE);
+                                            editDetectionAdapter.notifyDataSetChanged();
+                                            rv.setAdapter(editDetectionAdapter);
+                                        }
+                                        else
+                                        {
+                                            rv.setAdapter(null);
+                                            rv.setVisibility(View.GONE);
+                                            notext.setVisibility(View.VISIBLE);
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        rv.setVisibility(View.VISIBLE);
+                                        notext.setVisibility(View.GONE);
+                                        detectionsAdapter.notifyDataSetChanged();
+                                        rv.setAdapter(detectionsAdapter);
+                                    }
+
+
+
+                                }
+
+                                @Override
+                                public void afterTextChanged(Editable editable) {
+
+                                }
+                            });
                         }
                         srl.setRefreshing(false);
 //                    DetectionsAdapter detectionsAdapter=new DetectionsAdapter();

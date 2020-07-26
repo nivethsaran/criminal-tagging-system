@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,7 +44,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.Observable;
@@ -52,11 +56,15 @@ import io.reactivex.schedulers.Schedulers;
 public class ProfileActivity extends AppCompatActivity implements Serializable {
 
     CircleImageView imgView;
-    TextView cid,time,coordinates;
+    TextView cid,time,coordinates,nametv,gendertv,did;
+    ProgressBar severitySB;
     MapView mapView;
     final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     final List<Detection> detections=new ArrayList<Detection>();
     Detection detection;
+
+    String name,gender,actualPicturePath;
+    int severity=-1;
     @Override
     protected void onStart() {
         super.onStart();
@@ -99,12 +107,16 @@ public class ProfileActivity extends AppCompatActivity implements Serializable {
         time=findViewById(R.id.time);
         coordinates=findViewById(R.id.coordinates);
         mapView=findViewById(R.id.mapView);
-
+        nametv=findViewById(R.id.name);
+        gendertv=findViewById(R.id.gender);
+        did=findViewById(R.id.did);
+        severitySB=findViewById(R.id.severity);
         mapView.onCreate(savedInstanceState);
 
         detection=(Detection)getIntent().getSerializableExtra("detection");
 
         networkCallProfile();
+
 
         Log.d("Detection",detection.toString());
 
@@ -149,36 +161,65 @@ public class ProfileActivity extends AppCompatActivity implements Serializable {
         if(InternetConnection.checkConnection(getApplicationContext()))
         {
             Observable.fromCallable(() -> {
-                @SuppressLint("CheckResult") Request request = new Request.Builder()
+
+                Map<Integer,String> map=new HashMap<Integer,String>();
+                @SuppressLint("CheckResult") Request request1 = new Request.Builder()
                         .url("http://coders-of-blaviken-api.herokuapp.com/api/detections")
+                        .build();
+                @SuppressLint("CheckResult") Request request2 = new Request.Builder()
+                        .url("http://coders-of-blaviken-api.herokuapp.com/api/criminals/"+detection.getCid())
                         .build();
                 try {
                     OkHttpClient sHttpClient=new OkHttpClient();
-                    Response response = sHttpClient.newCall(request).execute();
+                    Response response = sHttpClient.newCall(request1).execute();
                     if(response.isSuccessful())
                     {
-                        return response.body().string();
+                        map.put(1,response.body().string());
                     }
                     else
                     {
-                        return null;
+                        Log.e("FailureCheck", "Failure");
+                        map.put(1,null);
                     }
                 } catch (IOException e) {
+                    map.put(1,null);
                     Log.e("Network request", "Failure", e);
                 }
 
-                return null;
+                try {
+                    OkHttpClient sHttpClient=new OkHttpClient();
+                    Response response = sHttpClient.newCall(request2).execute();
+                    if(response.isSuccessful())
+                    {
+                        map.put(2,response.body().string());
+
+                    }
+                    else
+                    {
+                        Log.e("FailureCheck", "Failure");
+                        map.put(2,null);
+                    }
+                } catch (IOException e) {
+                    map.put(2,null);
+                    Log.e("Network request", "Failure", e);
+                }
+                return map;
             })
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe((result) -> {
 
-                        if(result!=null)
+                        if(result.get(1)!=null&&result.get(2)!=null)
                         {
-
-                            JSONObject jsonObject=new JSONObject(result);
+                            String result1=result.get(1);
+                            String result2=result.get(2);
+                            JSONObject jsonObject=new JSONObject(result1);
                             JSONArray jsonArray=jsonObject.getJSONArray("detections");
-
+                            JSONObject result2Object=new JSONObject(result2).getJSONArray("criminals").getJSONObject(0);
+                            name=result2Object.getString("name");
+                            gender=result2Object.getString("gender");
+                            severity=result2Object.getInt("severity");
+                            actualPicturePath=result2Object.getString("picture");
                             for(int i=0;i<jsonArray.length();i++)
                             {
                                 double lat=0,lon=0;
@@ -221,15 +262,26 @@ public class ProfileActivity extends AppCompatActivity implements Serializable {
                                     .centerCrop()
                                     .placeholder(circularProgressDrawable)
                                     .error(R.mipmap.ic_launcher_round);
-                            Glide.with(ProfileActivity.this).load(detection.getImg()).apply(options).into(imgView);
+                            Glide.with(ProfileActivity.this).load(actualPicturePath).apply(options).into(imgView);
 
-                            cid.setText("Criminal ID:"+detection.getCid());
-                            coordinates.setText("Latest Location:"+detections.get(0).getLatitude()+ (char)0x00B0 + "N ,"+detections.get(0).getLongitude()+ (char)0x00B0 +"E");
+                            String tCid=getString(R.string.criminalid)+detection.getCid();
+                            String tLatLoc=getString(R.string.latestloc)+detections.get(0).getLatitude()+ (char)0x00B0 + "N ,"+detections.get(0).getLongitude()+ (char)0x00B0 +"E";
+                            String tDid=getString(R.string.detectionid)+detection.getId();
+                            String tName=getString(R.string.name)+name;
+                            String tGender=getString(R.string.gender)+gender;
+                            cid.setText(tCid);
+                            coordinates.setText(tLatLoc);
 
                             Date ld=new Date(detections.get(0).getTimestamp());
-                            String ldText=sdf.format(ld);
-                            time.setText("Last Detected:"+ldText+" ");
+                            String ldText=getString(R.string.lastDetected)+sdf.format(ld);
+                            time.setText(ldText);
+                            did.setText(tDid);
+                            nametv.setText(tName);
+                            gendertv.setText(tGender);
+                            severitySB.setMax(100);
 
+                            severitySB.setEnabled(false);
+                            severitySB.setProgress(severity);
                             mapView.getMapAsync(new OnMapReadyCallback() {
                                 @Override
                                 public void onMapReady(GoogleMap googleMap) {
@@ -237,10 +289,10 @@ public class ProfileActivity extends AppCompatActivity implements Serializable {
                                     for(Detection i:detections)
                                     {
                                         Date date=new Date(i.getTimestamp());
-                                        String dateText=sdf.format(date);
+                                        String dateText=getString(R.string.lastDetected)+sdf.format(date);
                                         googleMap.addMarker(new MarkerOptions()
                                                 .position(new LatLng(i.getLatitude(),i.getLongitude()))
-                                                .title("Timestamp:"+dateText));
+                                                .title(dateText));
                                     }
 
                                     googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(detection.getLatitude(),detection.getLongitude()), 5.0f));
@@ -268,7 +320,7 @@ public class ProfileActivity extends AppCompatActivity implements Serializable {
                                             }
                                             else
                                             {
-                                                Toast.makeText(getApplicationContext(),"Maps Application not installed",Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(getApplicationContext(),getString(R.string.mapnotinstalled),Toast.LENGTH_SHORT).show();
                                             }
                                         }
                                     });
@@ -279,7 +331,7 @@ public class ProfileActivity extends AppCompatActivity implements Serializable {
                         }
                         else
                         {
-                            Toast.makeText(getApplicationContext(),getString(R.string.no_internet),Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(),getString(R.string.error),Toast.LENGTH_SHORT).show();
                         }
                     });
         }

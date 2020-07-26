@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity{
             // set dialog message
             alertDialogBuilder
                     .setCancelable(false)
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    .setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             // get user input and set it to result
                             // edit text
@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity{
                             {
                                 if(InternetConnection.checkConnection(getApplicationContext()))
                                 {
-                                    new FCMTask(getApplicationContext()).execute("Criminal Detected, CID:"+ cid);
+                                    new FCMTask(getApplicationContext()).execute(getString(R.string.criminalnotification)+ cid);
                                 }
                                 else
                                 {
@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity{
 //                            Toast.makeText(getApplicationContext(), "Entered: "+userInput.getText().toString(), Toast.LENGTH_LONG).show();
                         }
                     })
-                    .setNegativeButton("Cancel",
+                    .setNegativeButton(getString(R.string.cancel),
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     dialog.cancel();
@@ -172,7 +172,8 @@ public class MainActivity extends AppCompatActivity{
         }
         else if(item.getItemId()==R.id.settings)
         {
-            Toast.makeText(getApplicationContext(),"Yet to be implemented",Toast.LENGTH_SHORT).show();
+            Intent intent=new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(intent);
         }
         else if(item.getItemId()==R.id.ic_track_locate)
         {

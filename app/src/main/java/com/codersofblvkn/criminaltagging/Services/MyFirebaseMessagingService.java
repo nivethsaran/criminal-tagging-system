@@ -18,6 +18,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import com.codersofblvkn.criminaltagging.Activities.NotificationActivity;
+import com.codersofblvkn.criminaltagging.Activities.SettingsActivity;
 import com.codersofblvkn.criminaltagging.R;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -32,7 +33,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
         //Setting Intents and get message
-        final Intent intent = new Intent(this, NotificationActivity.class);
+        Intent intent=null; //= new Intent(this, NotificationActivity.class);
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         int notificationID = new Random().nextInt(3000);
         String title = remoteMessage.getNotification().getTitle();
@@ -40,6 +41,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Log.d("Remote", title + " " + message);
 
         //Setting Channels
+
+        if(title.equals(getString(R.string.updateCAPS)))
+        {
+            intent=new Intent(this, SettingsActivity.class);
+        }
+        else {
+            intent=new Intent(this, NotificationActivity.class);
+        }
+
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             setupChannels(notificationManager);
         }

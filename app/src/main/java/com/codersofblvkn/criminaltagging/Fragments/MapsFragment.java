@@ -105,7 +105,7 @@ public class MapsFragment extends Fragment {
                                     }
                                     lonList.add(lon);
                                     latList.add(lat);
-                                    googleMap.addMarker(new MarkerOptions().position(new LatLng(lat,lon)).title("Criminal ID:"+tDetect.getString("id")));
+                                    googleMap.addMarker(new MarkerOptions().position(new LatLng(lat,lon)).title(getString(R.string.criminalid)+tDetect.getString("id")));
                                 }
                             }
                         });
@@ -147,7 +147,7 @@ public class MapsFragment extends Fragment {
                     }
                     else
                     {
-                        Toast.makeText(getActivity().getApplicationContext(),"Maps Application not installed",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity().getApplicationContext(),getString(R.string.mapnotinstalled),Toast.LENGTH_SHORT).show();
                     }
                 }
             });
