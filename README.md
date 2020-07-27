@@ -1,7 +1,7 @@
 <h1 align="center"> Jatayu Criminal Tagging </h1> <br>
 <p align="center">
-  <a href="https://gitpoint.co/">
-    <img alt="GitPoint" title="GitPoint" src="https://i.imgur.com/RKlSJO7.png" width="300">
+  <a href="http://jatayu.org/">
+    <img alt="Jatayu" title="Jatayu" src="https://i.imgur.com/RKlSJO7.png" width="300">
   </a>
 </p>
 
