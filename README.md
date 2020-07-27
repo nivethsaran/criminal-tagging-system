@@ -15,7 +15,7 @@
   </a> -->
 
   <a href="https://drive.google.com/file/d/1jf2gF54voIMy7eVFV71OjMqzVqdjYPup/view">
-    <img alt="Get it on Google Play" title="Google Play" src="https://file.wiki/wp-content/uploads/2018/10/Download-Google-Drive-File-Stream-Offline-Installer-1.png" width="140">
+    <img alt="Get it on Google Drive" title="Google Play" src="https://file.wiki/wp-content/uploads/2018/10/Download-Google-Drive-File-Stream-Offline-Installer-1.png" width="140">
   </a>
 </p>
 
