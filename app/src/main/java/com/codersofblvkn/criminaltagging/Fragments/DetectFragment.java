@@ -1,6 +1,7 @@
 package com.codersofblvkn.criminaltagging.Fragments;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -27,6 +28,12 @@ import androidx.fragment.app.Fragment;
 import com.codersofblvkn.criminaltagging.R;
 import com.codersofblvkn.criminaltagging.Utils.FilePath;
 import com.codersofblvkn.criminaltagging.Utils.InternetConnection;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -378,12 +385,7 @@ public class DetectFragment extends Fragment {
                 Log.d("Detection", "Server Response is: " + fo + ": " + serverResponseMessage);
                 //response code of 200 indicates the server status OK
                 if (serverResponseCode == 200) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-//                            tvFileName.setText("File Upload completed.\n\n You can see the uploaded file here: \n\n" + "http://coderefer.com/extras/uploads/" + fileName);
-                        }
-                    });
+                    getDetectionData(fo);
                 }
 
                 //closing the input and output streams
@@ -421,9 +423,85 @@ public class DetectFragment extends Fragment {
                     }
                 });
             }
-            dialog.dismiss();
+
         }
 
+    }
+
+
+    public void getDetectionData(String fo)
+    {
+        String url_image="";
+        //creating new thread to handle Http Operations
+        try {
+            url_image=new JSONObject(fo).getString("url");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Request request1 = new Request.Builder()
+                .url("https://codersofblaviken.blob.core.windows.net/detection/images/url.json")
+                .build();
+        try {
+            OkHttpClient sHttpClient=new OkHttpClient();
+            Response response = sHttpClient.newCall(request1).execute();
+            if(response.isSuccessful())
+            {
+                String resp_forward=response.body().string();
+                getDetectionID(resp_forward,url_image);
+                Log.d("Detection","Successful "+resp_forward);
+            }
+            else
+                {
+                    Log.d("Detection","Error Ngrok Something else "+response.body().string());
+                }
+        } catch (IOException e) {
+            Log.d("Detection","Error Ngrok Exception");
+        }
+    }
+
+
+    @SuppressLint("CheckResult")
+    public void getDetectionID(String urljson, String urlimage)
+    {
+
+        try {
+            String CIDJSON="";
+            String url=new JSONObject(urljson).getString("url")+"/image?url="+urlimage;
+            Request request2 = new Request.Builder()
+                    .url(url)
+                    .build();
+            OkHttpClient sHttpClient=new OkHttpClient();
+            Log.d("Detection", "Final URL:"+url);
+            Response response = sHttpClient.newCall(request2).execute();
+            if(response.isSuccessful())
+            {
+                CIDJSON=response.body().string();
+                Log.d("Detection","Successful "+CIDJSON);
+                finalDecisionMaking(CIDJSON);
+            }
+            else
+                {
+                    Log.d("Detection","Error Ngrok Something else "+response.body().string());
+                    finalDecisionMaking("Error Server Disconnected");
+                }
+        } catch (JSONException e) {
+            Log.d("Detection","Error JSON Exception");
+        }
+        catch (IOException e) {
+            Log.d("Detection","Error IO Exception"+e.getMessage());
+        }
+        dialog.dismiss();
+    }
+
+
+    public void finalDecisionMaking(String output)
+    {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getActivity(),output,Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
 

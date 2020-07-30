@@ -52,7 +52,7 @@
         android:layout_marginTop="100dp"
         android:background="@drawable/button"
         android:clickable="true"
-        android:visibility="gone"
+        android:visibility="visible"
         android:focusable="true"
         android:paddingHorizontal="40dp"
         android:shadowColor="@color/colorAccent"
