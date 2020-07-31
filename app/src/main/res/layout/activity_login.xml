@@ -33,6 +33,7 @@
         android:layout_height="wrap_content"
         android:textColorHint="#929aab"
         android:paddingVertical="20dp"
+        android:backgroundTint="@color/colorPrimary"
         android:textColor="@color/colorText"
         android:layout_marginHorizontal="20sp"
         android:freezesText="true"
@@ -47,6 +48,7 @@
         android:layout_height="wrap_content"
         android:textColorHint="#929aab"
         android:textColor="@color/colorText"
+        android:backgroundTint="@color/colorPrimary"
         android:paddingVertical="20dp"
         android:layout_marginHorizontal="20sp"
         android:freezesText="true"
@@ -66,14 +68,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/showPassword"
+            android:backgroundTint="@color/colorPrimary"
+            android:buttonTint="@color/colorPrimary"
             android:layout_weight="1"
             android:textColor="@color/colorText"
             android:layout_gravity="start|center_vertical"
-            />
+            tools:targetApi="lollipop" />
         <CheckBox
             android:id="@+id/remember_me"
             android:layout_weight="1"
             android:layout_width="match_parent"
+            android:backgroundTint="@color/colorPrimary"
+            android:buttonTint="@color/colorPrimary"
+            tools:targetApi="lollipop"
             android:layout_height="wrap_content"
             android:text="@string/rememberMe"
 

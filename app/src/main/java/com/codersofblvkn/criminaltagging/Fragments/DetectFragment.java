@@ -25,6 +25,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
+import com.codersofblvkn.criminaltagging.Activities.NotificationActivity;
 import com.codersofblvkn.criminaltagging.R;
 import com.codersofblvkn.criminaltagging.Utils.FilePath;
 import com.codersofblvkn.criminaltagging.Utils.InternetConnection;
@@ -473,22 +474,24 @@ public class DetectFragment extends Fragment {
             OkHttpClient sHttpClient=new OkHttpClient();
             Log.d("Detection", "Final URL:"+url);
             Response response = sHttpClient.newCall(request2).execute();
+            String resp=response.body().string();
             if(response.isSuccessful())
             {
-                CIDJSON=response.body().string();
-                Log.d("Detection","Successful "+CIDJSON);
-                finalDecisionMaking(CIDJSON);
+
+                Log.d("Detection","Successful "+resp);
+                finalDecisionMaking(resp);
             }
             else
                 {
-                    Log.d("Detection","Error Ngrok Something else "+response.body().string());
+                    Log.d("Detection","Error Ngrok Something else "+resp);
                     finalDecisionMaking("Error Server Disconnected");
                 }
         } catch (JSONException e) {
+            finalDecisionMaking("Exception");
             Log.d("Detection","Error JSON Exception");
-        }
-        catch (IOException e) {
-            Log.d("Detection","Error IO Exception"+e.getMessage());
+        } catch (IOException e) {
+            finalDecisionMaking("Exception");
+            Log.d("Detection","Unexpected IO Exception");
         }
         dialog.dismiss();
     }
@@ -499,7 +502,9 @@ public class DetectFragment extends Fragment {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(getActivity(),output,Toast.LENGTH_LONG).show();
+                Intent intent=new Intent(getActivity(), NotificationActivity.class);
+                intent.putExtra("cid",":"+5);
+                startActivity(intent);
             }
         });
     }
