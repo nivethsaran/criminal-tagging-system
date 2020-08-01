@@ -483,8 +483,9 @@ public class DetectFragment extends Fragment {
             }
             else
                 {
-                    Log.d("Detection","Error Ngrok Something else "+resp);
                     finalDecisionMaking("Error Server Disconnected");
+                    Log.d("Detection","Error Ngrok Something else "+resp);
+
                 }
         } catch (JSONException e) {
             finalDecisionMaking("Exception");
@@ -502,9 +503,23 @@ public class DetectFragment extends Fragment {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Intent intent=new Intent(getActivity(), NotificationActivity.class);
-                intent.putExtra("cid",":"+5);
-                startActivity(intent);
+
+                if(output.equals("Error Server Disconnected")||output.equals("Exception")||output.equals("Error")||output.equals(""))
+                {
+                    Toast.makeText(getActivity(),"Error occured in the server",Toast.LENGTH_LONG).show();
+                }
+                else{
+                    String message="";
+                    try {
+                        message=Integer.toString(new JSONObject(output).getInt("cid"));
+                        Intent intent=new Intent(getActivity(), NotificationActivity.class);
+                        intent.putExtra("cid",":"+message);
+                        startActivity(intent);
+                    } catch (JSONException e) {
+                        Toast.makeText(getActivity(),"Improper CID Received",Toast.LENGTH_LONG).show();
+                    }
+                }
+
             }
         });
     }
