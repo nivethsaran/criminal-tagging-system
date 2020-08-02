@@ -293,10 +293,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.navigation_about:
                 openFragment(MapsFragment.newInstance());
                 break;
-//            case R.id.navigation_violence:
-//                intent = new Intent(MainActivity.this, ViolenceDashboardActivity.class);
-//                startActivity(intent);
-//                break;
+            case R.id.navigation_violence:
+                intent = new Intent(MainActivity.this, ViolenceDashboardActivity.class);
+                startActivity(intent);
+                break;
 
         }
         DrawerLayout drawer = findViewById(R.id.drawer_layout);

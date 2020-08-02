@@ -70,4 +70,5 @@
     <string name="alert">चेतावनी</string>
     <string name="trackalert">ट्रैक अलर्ट करें</string>
     <string name="detect">"पता लगाएँ "</string>
+    <string name="logout">लॉग आउट</string>
 </resources>

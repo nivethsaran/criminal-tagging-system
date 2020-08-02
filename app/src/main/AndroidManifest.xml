@@ -36,7 +36,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Activities.ViewViolenceActivity"></activity>
+        <activity android:name=".Activities.VideoActivity"></activity>
+        <activity android:name=".Activities.ViewViolenceActivity" />
         <activity android:name=".Activities.ViolenceDashboardActivity" />
         <activity android:name=".Activities.CrewActivity" />
         <activity android:name=".Activities.SettingsActivity" />
