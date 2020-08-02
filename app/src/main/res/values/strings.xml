@@ -64,4 +64,12 @@
     <string name="nodetavailable">No detections available</string>
     <string name="entercid">Enter Criminal ID Here…</string>
     <string name="changeLang">Change Language</string>
+    <string name="detectionmaps">Detections(Maps)</string>
+    <string name="detectionlist">Detections List</string>
+    <string name="identify">Identify</string>
+    <string name="alert">Alert</string>
+    <string name="trackalert">Track Alert</string>
+
+    <string name="detect">Detect</string>
+
 </resources>

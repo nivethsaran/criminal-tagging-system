@@ -10,6 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="24sp"
+        android:textColor="@color/colorText"
         android:text="@string/customcid"/>
     <EditText
         android:id="@+id/dialoged"
@@ -17,6 +18,8 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="36dp"
         android:ems="10"
+        android:textColor="@color/colorText"
+        android:backgroundTint="@color/colorAccent"
         android:inputType="number"/>
 
 </LinearLayout>

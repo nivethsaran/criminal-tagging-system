@@ -68,7 +68,7 @@ public class DetectFragment extends Fragment {
     Uri filepath=null;
     Uri photoURI;
     ProgressDialog dialog;
-    final String SERVER_URL="http://upload-dimg.herokuapp.com/upload/image";
+    final String SERVER_URL="http://upload-dimg.herokuapp.com/upload/video";
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static final String[] PERMISSIONS_STORAGE = {
@@ -338,14 +338,14 @@ public class DetectFragment extends Fragment {
                 connection.setRequestProperty("Connection", "Keep-Alive");
                 connection.setRequestProperty("ENCTYPE", "multipart/form-data");
                 connection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
-                connection.setRequestProperty("image", selectedFilePath);
+                connection.setRequestProperty("video", selectedFilePath);
 
                 //creating new dataoutputstream
                 dataOutputStream = new DataOutputStream(connection.getOutputStream());
 
                 //writing bytes to data outputstream
                 dataOutputStream.writeBytes(twoHyphens + boundary + lineEnd);
-                dataOutputStream.writeBytes("Content-Disposition: form-data; name=\"image\";filename=\""
+                dataOutputStream.writeBytes("Content-Disposition: form-data; name=\"video\";filename=\""
                         + selectedFilePath + "\"" + lineEnd);
 
                 dataOutputStream.writeBytes(lineEnd);
@@ -377,6 +377,7 @@ public class DetectFragment extends Fragment {
                 BufferedReader br = new BufferedReader(new InputStreamReader((connection.getInputStream())));
                 StringBuilder sb = new StringBuilder();
                 String output;
+                Log.d("Detection","Server Response:");
                 while ((output = br.readLine()) != null) {
                     sb.append(output);
                 }
