@@ -6,12 +6,12 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/navigation_detect"
-            android:icon="@drawable/ic_home"
+            android:icon="@drawable/ic_camera"
             android:title="@string/detect" />
 
         <item
             android:id="@+id/navigation_me"
-            android:icon="@drawable/ic_menu_share"
+            android:icon="@drawable/ic_bomb"
             android:title="@string/detectionlist" />
 
         <item
@@ -21,7 +21,7 @@
 
         <item
             android:id="@+id/navigation_violence"
-            android:icon="@drawable/ic_location"
+            android:icon="@drawable/ic_bomb"
             android:title="Violence Data" />
     </group>
 

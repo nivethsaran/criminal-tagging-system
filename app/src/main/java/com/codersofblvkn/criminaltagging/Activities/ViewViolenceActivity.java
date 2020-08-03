@@ -1,11 +1,16 @@
 package com.codersofblvkn.criminaltagging.Activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.codersofblvkn.criminaltagging.R;
@@ -18,13 +23,22 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.Locale;
+
 public class ViewViolenceActivity extends AppCompatActivity {
     TextView textView,textView4;
     MapView mapView;
     Button button;
+
+    String language;
+    private  Locale locale;
+
     @Override
     protected void onStart() {
         super.onStart();
+        SharedPreferences sp=getSharedPreferences("mycredentials", Context.MODE_PRIVATE);
+        language=sp.getString("language","en");
+        locale = new Locale(language);
         mapView.onStart();
     }
 
@@ -57,7 +71,8 @@ public class ViewViolenceActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_violence);
-
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
         textView=findViewById(R.id.textView);
         textView4=findViewById(R.id.textView4);
         Intent intent=getIntent();
@@ -65,9 +80,10 @@ public class ViewViolenceActivity extends AppCompatActivity {
         String url=violence.getVideoPath();
         mapView=findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
-        String ids=violence.getId()+" ";
+        String ids=getString(R.string.violenceid)+violence.getId()+" ";
         textView.setText(ids);
-        textView4.setText(violence.getTimestamp().substring(0,12));
+        String temptime=getString(R.string.timestamp)+violence.getTimestamp().substring(0,20);
+        textView4.setText(temptime);
         button=findViewById(R.id.button);
 
         button.setOnClickListener(new View.OnClickListener() {
@@ -99,6 +115,24 @@ public class ViewViolenceActivity extends AppCompatActivity {
 
 
 
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        Configuration config = getBaseContext().getResources().getConfiguration();
+        // refresh your views here
+        Locale.setDefault(locale);
+        config.locale = locale;
+        super.onConfigurationChanged(newConfig);
 
     }
 }

@@ -1,19 +1,26 @@
 package com.codersofblvkn.criminaltagging.Activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.webkit.URLUtil;
 import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.codersofblvkn.criminaltagging.R;
+
+import java.util.Locale;
 
 public class VideoActivity extends AppCompatActivity {
 
@@ -27,12 +34,17 @@ public class VideoActivity extends AppCompatActivity {
 
     // Tag for the instance state bundle.
     private static final String PLAYBACK_TIME = "play_time";
+    String language;
+    private  Locale locale;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
         Intent intent=getIntent();
         url=intent.getStringExtra("video");
         mVideoView = findViewById(R.id.videoview);
@@ -49,13 +61,18 @@ public class VideoActivity extends AppCompatActivity {
     }
 
 
+
     @Override
     protected void onStart() {
         super.onStart();
 
-        // Load the media each time onStart() is called.
+        SharedPreferences sp=getSharedPreferences("mycredentials", Context.MODE_PRIVATE);
+        language=sp.getString("language","en");
+        locale = new Locale(language);
         initializePlayer();
     }
+
+
 
     @Override
     protected void onPause() {
@@ -73,7 +90,13 @@ public class VideoActivity extends AppCompatActivity {
             mVideoView.pause();
         }
     }
-
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+        }
+        return super.onOptionsItemSelected(item);
+    }
     @Override
     protected void onStop() {
         super.onStop();
@@ -160,6 +183,16 @@ public class VideoActivity extends AppCompatActivity {
 
 
         }
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        Configuration config = getBaseContext().getResources().getConfiguration();
+        // refresh your views here
+        Locale.setDefault(locale);
+        config.locale = locale;
+        super.onConfigurationChanged(newConfig);
+
     }
 
 }

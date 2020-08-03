@@ -61,10 +61,10 @@ public class ViolenceAdapter extends RecyclerView.Adapter<ViolenceAdapter.Violen
         public void bind(Violence violence) {
 
 
-            String disp_ID= itemView.getContext().getString(R.string.detectionid)+ violence.getId();
-
+            String disp_ID= itemView.getContext().getString(R.string.violenceid)+ violence.getId();
             tv1.setText(disp_ID);
-            tv2.setText(violence.getTimestamp().substring(0,12));
+            tv2.setText(violence.getTimestamp().substring(0,20));
+
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -73,4 +73,5 @@ public class ViolenceAdapter extends RecyclerView.Adapter<ViolenceAdapter.Violen
             });
         }
     }
+
 }

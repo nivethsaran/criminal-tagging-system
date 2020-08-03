@@ -69,7 +69,11 @@
     <string name="identify">Identify</string>
     <string name="alert">Alert</string>
     <string name="trackalert">Track Alert</string>
-
+    <string name="violenceid">Violence ID</string>
     <string name="detect">Detect</string>
+    <string name="viewvideo">View Video</string>
     <string name="logout">Logout</string>
+    <string name="serverrror">Error occured in the server</string>
+    <string name="impropercid">Improper CID Received</string>
+    <string name="hindi">हिंदी </string>
 </resources>
